@@ -1,0 +1,9 @@
+vanna==0.7.4
+pandas
+sqlalchemy
+psycopg2-binary
+pymysql
+pyodbc
+anthropic
+openai
+google-generativeai

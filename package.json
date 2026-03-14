@@ -1,0 +1,69 @@
+{
+  "name": "vanna-sql-agent-extension",
+  "displayName": "Vanna SQL Agent",
+  "description": "NL2SQL Agent powered by Vanna",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vanna-sql.openChat",
+        "title": "Vanna SQL: Open Chat"
+      }
+    ],
+    "configuration": {
+      "title": "Vanna SQL Agent",
+      "properties": {
+        "vannaSql.llmProvider": {
+          "type": "string",
+          "enum": [
+            "OpenAI",
+            "Azure OpenAI",
+            "Anthropic",
+            "Google Gemini",
+            "Ollama"
+          ],
+          "default": "OpenAI",
+          "description": "Select the LLM Provider."
+        },
+        "vannaSql.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API Key for your chosen provider."
+        },
+        "vannaSql.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Endpoint (Optional, required for Azure, or model name for Ollama)."
+        },
+        "vannaSql.sqlConnectionUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Database Connection URL (e.g. postgresql://user:password@localhost:5432/db)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.49.0",
+    "typescript": "^5.2.2"
+  }
+}
