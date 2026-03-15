@@ -7,15 +7,46 @@
     <link rel="stylesheet" href="{{webviewUri}}/chat.css">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="messages" id="messages">
-            <!-- Messages will appear here -->
-        </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Ask a question about your database..." />
-            <button id="sendBtn">Send</button>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="chat">Chat</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- Chat Tab -->
+    <div id="chat-tab" class="tab-content active">
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Ask a question about your database..." />
+                <button id="sendBtn">Send</button>
+            </div>
         </div>
     </div>
+
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content">
+        <div class="settings-container">
+            <h3>Configuration</h3>
+            
+            <label for="modelName">Model Name</label>
+            <input type="text" id="modelName" placeholder="e.g. gpt-4o, claude-3-sonnet-20240229..." />
+            <small>Provider (OpenAI, Anthropic, Google) is auto-detected from model name.</small>
+
+            <label for="apiKey">API Key</label>
+            <input type="password" id="apiKey" placeholder="Enter API Key" />
+
+            <label for="endpoint">Endpoint URL</label>
+            <input type="text" id="endpoint" placeholder="(Optional) Custom endpoint or Ollama URL" />
+
+            <label for="sqlConnectionUrl">SQL Connection URL</label>
+            <input type="password" id="sqlConnectionUrl" placeholder="postgresql://user:password@localhost:5432/db" />
+
+            <button id="saveSettingsBtn">Save Settings</button>
+        </div>
+    </div>
+
     <script src="{{webviewUri}}/chat.js"></script>
 </body>
 </html>

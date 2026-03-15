@@ -1,5 +1,20 @@
 const vscode = acquireVsCodeApi();
 
+// Load settings as soon as webview starts
+vscode.postMessage({ type: 'loadSettings' });
+
+// Tab Switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+    });
+});
+
+// Chat Logic
 document.getElementById('sendBtn').addEventListener('click', () => {
     sendInput();
 });
@@ -20,12 +35,30 @@ function sendInput() {
     }
 }
 
+// Settings Logic
+document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    const settings = {
+        modelName: document.getElementById('modelName').value.trim(),
+        apiKey: document.getElementById('apiKey').value.trim(),
+        endpoint: document.getElementById('endpoint').value.trim(),
+        sqlConnectionUrl: document.getElementById('sqlConnectionUrl').value.trim()
+    };
+    vscode.postMessage({ type: 'saveSettings', settings });
+});
+
+
+// Message Listeners
 window.addEventListener('message', event => {
     const message = event.data;
     if (message.type === 'response') {
         renderResponse(message.data);
     } else if (message.type === 'error') {
         renderError(message.error);
+    } else if (message.type === 'settingsLoaded') {
+        document.getElementById('modelName').value = message.settings.modelName || '';
+        document.getElementById('apiKey').value = message.settings.apiKey || '';
+        document.getElementById('endpoint').value = message.settings.endpoint || '';
+        document.getElementById('sqlConnectionUrl').value = message.settings.sqlConnectionUrl || '';
     }
 });
 

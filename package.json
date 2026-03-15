@@ -12,6 +12,24 @@
   "main": "./out/extension.js",
   "activationEvents": [],
   "contributes": {
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "vanna-sql-sidebar",
+          "title": "Vanna SQL",
+          "icon": "$(database)"
+        }
+      ]
+    },
+    "views": {
+      "vanna-sql-sidebar": [
+        {
+          "type": "webview",
+          "id": "vanna-sql.chatView",
+          "name": "Vanna SQL Agent"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "vanna-sql.openChat",
@@ -21,17 +39,10 @@
     "configuration": {
       "title": "Vanna SQL Agent",
       "properties": {
-        "vannaSql.llmProvider": {
+        "vannaSql.modelName": {
           "type": "string",
-          "enum": [
-            "OpenAI",
-            "Azure OpenAI",
-            "Anthropic",
-            "Google Gemini",
-            "Ollama"
-          ],
-          "default": "OpenAI",
-          "description": "Select the LLM Provider."
+          "default": "gpt-4o",
+          "description": "The Model Name to use (e.g. gpt-4o, claude-3-sonnet-20240229, gemini-1.5-pro). The provider will be automatically detected."
         },
         "vannaSql.apiKey": {
           "type": "string",
@@ -41,7 +52,7 @@
         "vannaSql.endpoint": {
           "type": "string",
           "default": "",
-          "description": "Endpoint (Optional, required for Azure, or model name for Ollama)."
+          "description": "Endpoint (Optional, required for Azure, or endpoint URL for Ollama)."
         },
         "vannaSql.sqlConnectionUrl": {
           "type": "string",

@@ -9,6 +9,40 @@ body {
     flex-direction: column;
 }
 
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    background: var(--vscode-editorGroupHeader-tabsBackground);
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--vscode-tab-inactiveForeground);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--vscode-tab-activeForeground);
+    border-bottom: 2px solid var(--vscode-tab-activeBorder);
+    background: var(--vscode-tab-activeBackground);
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Chat Tab Styles */
 .chat-container {
     display: flex;
     flex-direction: column;
@@ -29,6 +63,7 @@ body {
     border-radius: 4px;
     background: var(--vscode-editorWidget-background);
     border: 1px solid var(--vscode-widget-border);
+    word-break: break-word;
 }
 
 .message.user {
@@ -55,6 +90,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.5rem;
+    font-size: 0.9em;
 }
 
 th, td {
@@ -94,4 +130,24 @@ button {
 
 button:hover {
     background: var(--vscode-button-hoverBackground);
+}
+
+/* Settings Tab Styles */
+.settings-container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    overflow-y: auto;
+}
+
+.settings-container label {
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.settings-container small {
+    color: var(--vscode-descriptionForeground);
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
 }
