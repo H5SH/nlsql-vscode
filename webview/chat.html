@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanna SQL Chat</title>
+    <title>openQL Chat</title>
     <link rel="stylesheet" href="{{webviewUri}}/chat.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
                 <!-- Messages will appear here -->
             </div>
             <div class="input-area">
-                <input type="text" id="userInput" placeholder="Ask a question about your database..." />
+                <textarea id="userInput" rows="1" placeholder="Ask a question about your database..."></textarea>
                 <button id="sendBtn">Send</button>
             </div>
         </div>
@@ -36,6 +36,11 @@
 
             <label for="apiKey">API Key</label>
             <input type="password" id="apiKey" placeholder="Enter API Key" />
+
+            <div id="azureToggleContainer" style="display: none; margin-top: 10px; align-items: center; gap: 10px;">
+                <input type="checkbox" id="useAzure" style="width: auto;" />
+                <label for="useAzure" style="margin-top: 0;">Use Azure OpenAI</label>
+            </div>
 
             <label for="endpoint">Endpoint URL</label>
             <input type="text" id="endpoint" placeholder="(Optional) Custom endpoint or Ollama URL" />

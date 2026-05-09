@@ -17,7 +17,16 @@ def connect_db(vn, sql_url):
     
     def run_sql(sql: str) -> pd.DataFrame:
         with engine.connect() as conn:
-            return pd.read_sql(sqlalchemy.text(sql), conn)
+            # Use execute instead of read_sql to handle non-SELECT statements
+            result = conn.execute(sqlalchemy.text(sql))
+            # Commit changes for DDL/DML
+            conn.commit()
+            
+            if result.returns_rows:
+                return pd.DataFrame(result.fetchall(), columns=result.keys())
+            else:
+                # Return empty dataframe for success on non-SELECT queries
+                return pd.DataFrame()
             
     # override run_sql logic
     vn.run_sql_is_set = True
@@ -35,6 +44,12 @@ def connect_db(vn, sql_url):
             schema_info.append(f"Table {table_name}: " + ", ".join(col_info))
         
         # Inject context for generating SQL
-        vn.system_message = f"You are a database expert. The database schema has these tables: \n" + "\n".join(schema_info)
+        system_msg_text = (
+            "You are a database expert. Your goal is to provide ONLY a valid SQL query in response to the user's question. "
+            "Do not provide any explanations, greetings, or additional text. If the user asks something that is not related "
+            "to querying the database, politely state that you can only assist with SQL generation. "
+            "The database schema has these tables: \n" + "\n".join(schema_info)
+        )
+        vn.system_message = lambda initial_prompt: {"role": "system", "content": system_msg_text}
     except Exception as e:
         print(f"Warning: could not inspect db - {str(e)}")

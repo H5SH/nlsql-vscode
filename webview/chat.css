@@ -110,13 +110,20 @@ th {
     gap: 0.5rem;
 }
 
-input {
+input, textarea {
     flex: 1;
     padding: 0.5rem;
     background: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
     border: 1px solid var(--vscode-input-border);
     border-radius: 2px;
+    resize: none;
+    font-family: inherit;
+}
+
+textarea {
+    min-height: 20px;
+    max-height: 150px;
 }
 
 button {
@@ -150,4 +157,38 @@ button:hover {
     color: var(--vscode-descriptionForeground);
     margin-top: -0.5rem;
     margin-bottom: 0.5rem;
+}
+.typing-indicator {
+    padding: 0.8rem;
+    background: var(--vscode-editorWidget-background);
+    border: 1px solid var(--vscode-widget-border);
+    border-radius: 4px;
+    align-self: flex-start;
+    font-style: italic;
+    font-size: 0.9em;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dots {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.dot {
+    width: 4px;
+    height: 4px;
+    background: var(--vscode-editor-foreground);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+}
+
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
 }

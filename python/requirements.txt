@@ -1,4 +1,6 @@
 vanna==0.7.4
+chromadb
+ollama
 pandas
 sqlalchemy
 psycopg2-binary

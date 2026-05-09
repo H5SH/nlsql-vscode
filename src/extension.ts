@@ -44,11 +44,12 @@ class VannaSqlChatViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         if (!this.pythonRunner) {
+            const outputChannel = vscode.window.createOutputChannel("openQL Agent");
             this.pythonRunner = new PythonRunner(this._extensionPath);
             this.pythonRunner.onMessage((msg) => {
                 webviewView.webview.postMessage(msg);
             });
-            this.pythonRunner.start();
+            this.pythonRunner.start(outputChannel);
         }
 
         webviewView.webview.onDidReceiveMessage(message => {
@@ -61,6 +62,7 @@ class VannaSqlChatViewProvider implements vscode.WebviewViewProvider {
                         config: {
                             model: config.get('modelName'),
                             apiKey: config.get('apiKey'),
+                            useAzure: config.get('useAzure'),
                             endpoint: config.get('endpoint'),
                             sqlConnectionUrl: config.get('sqlConnectionUrl')
                         }
@@ -71,9 +73,10 @@ class VannaSqlChatViewProvider implements vscode.WebviewViewProvider {
                     const config = vscode.workspace.getConfiguration('vannaSql');
                     config.update('modelName', message.settings.modelName, vscode.ConfigurationTarget.Global);
                     config.update('apiKey', message.settings.apiKey, vscode.ConfigurationTarget.Global);
+                    config.update('useAzure', message.settings.useAzure, vscode.ConfigurationTarget.Global);
                     config.update('endpoint', message.settings.endpoint, vscode.ConfigurationTarget.Global);
                     config.update('sqlConnectionUrl', message.settings.sqlConnectionUrl, vscode.ConfigurationTarget.Global);
-                    vscode.window.showInformationMessage('Vanna SQL Settings updated!');
+                    vscode.window.showInformationMessage('openQL Settings updated!');
                     break;
                 }
                 case 'loadSettings': {
@@ -83,6 +86,7 @@ class VannaSqlChatViewProvider implements vscode.WebviewViewProvider {
                         settings: {
                             modelName: config.get('modelName') || '',
                             apiKey: config.get('apiKey') || '',
+                            useAzure: config.get('useAzure') || false,
                             endpoint: config.get('endpoint') || '',
                             sqlConnectionUrl: config.get('sqlConnectionUrl') || ''
                         }

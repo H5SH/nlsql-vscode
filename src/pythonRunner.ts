@@ -1,24 +1,76 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as vscode from 'vscode';
 
 export class PythonRunner {
     private process?: ChildProcess;
     private onMessageCallback?: (msg: any) => void;
     private buffer = '';
+    private venvPath: string;
+    private pythonExec: string;
 
-    constructor(private extensionPath: string) {}
+    constructor(private extensionPath: string) {
+        this.venvPath = path.join(this.extensionPath, 'python', '.venv');
+        
+        // Determine the executable path based on platform
+        if (process.platform === 'win32') {
+            this.pythonExec = path.join(this.venvPath, 'Scripts', 'python.exe');
+        } else {
+            this.pythonExec = path.join(this.venvPath, 'bin', 'python');
+        }
+    }
 
-    start() {
+    private setupEnvironment(outputChannel: vscode.OutputChannel): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (fs.existsSync(this.pythonExec)) {
+                outputChannel.appendLine("Virtual environment already exists.");
+                resolve();
+                return;
+            }
+
+            outputChannel.appendLine("Creating virtual environment...");
+            try {
+                // Determine system python
+                const sysPython = process.platform === 'win32' ? 'python' : 'python3';
+                execSync(`${sysPython} -m venv ${this.venvPath}`, { cwd: this.extensionPath });
+
+                outputChannel.appendLine("Installing requirements...");
+                const reqPath = path.join(this.extensionPath, 'python', 'requirements.txt');
+                
+                // Use pip from the newly created venv
+                const pipExec = process.platform === 'win32' 
+                    ? path.join(this.venvPath, 'Scripts', 'pip.exe') 
+                    : path.join(this.venvPath, 'bin', 'pip');
+
+                execSync(`${pipExec} install -r ${reqPath}`, { cwd: this.extensionPath });
+                outputChannel.appendLine("Virtual environment setup complete.");
+                resolve();
+            } catch (error: any) {
+                outputChannel.appendLine(`Failed to setup Python environment: ${error.message}`);
+                reject(error);
+            }
+        });
+    }
+
+    async start(outputChannel: vscode.OutputChannel) {
         if (this.process) return;
 
+        try {
+            outputChannel.show();
+            await this.setupEnvironment(outputChannel);
+        } catch(e) {
+            vscode.window.showErrorMessage("Failed to setup Python environment. Check output log.");
+            return;
+        }
+
         const scriptPath = path.join(this.extensionPath, 'python', 'agent.py');
-        this.process = spawn('python3', [scriptPath]);
+        this.process = spawn(this.pythonExec, [scriptPath]);
 
         this.process.stdout?.on('data', (data) => {
             this.buffer += data.toString();
-            // Process NDJSON (Newline Delimited JSON)
             let lines = this.buffer.split('\n');
-            this.buffer = lines.pop() || ''; // keep the incomplete line in the buffer
+            this.buffer = lines.pop() || ''; 
             
             for (let line of lines) {
                 if (line.trim()) {
@@ -26,18 +78,18 @@ export class PythonRunner {
                         const parsed = JSON.parse(line);
                         this.onMessageCallback?.(parsed);
                     } catch (e) {
-                        console.error('Error parsing python output:', line);
+                        outputChannel.appendLine(`Error parsing python output: ${line}`);
                     }
                 }
             }
         });
 
         this.process.stderr?.on('data', (data) => {
-            console.error('Python Stderr:', data.toString());
+            outputChannel.appendLine(`Python Stderr: ${data.toString()}`);
         });
 
         this.process.on('close', (code) => {
-            console.log(`Python process exited with code ${code}`);
+            outputChannel.appendLine(`Python process exited with code ${code}`);
             this.process = undefined;
         });
     }

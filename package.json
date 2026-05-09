@@ -1,6 +1,6 @@
 {
   "name": "vanna-sql-agent-extension",
-  "displayName": "Vanna SQL Agent",
+  "displayName": "openQL Agent",
   "description": "NL2SQL Agent powered by Vanna",
   "version": "1.0.0",
   "engines": {
@@ -16,7 +16,7 @@
       "panel": [
         {
           "id": "vanna-sql-sidebar",
-          "title": "Vanna SQL",
+          "title": "openQL",
           "icon": "$(database)"
         }
       ]
@@ -26,18 +26,18 @@
         {
           "type": "webview",
           "id": "vanna-sql.chatView",
-          "name": "Vanna SQL Agent"
+          "name": "openQL"
         }
       ]
     },
     "commands": [
       {
         "command": "vanna-sql.openChat",
-        "title": "Vanna SQL: Open Chat"
+        "title": "openQL: Open Chat"
       }
     ],
     "configuration": {
-      "title": "Vanna SQL Agent",
+      "title": "opneQL Agent",
       "properties": {
         "vannaSql.modelName": {
           "type": "string",
@@ -48,6 +48,11 @@
           "type": "string",
           "default": "",
           "description": "API Key for your chosen provider."
+        },
+        "vannaSql.useAzure": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to use Azure OpenAI instead of standard OpenAI (only applies to gpt models)."
         },
         "vannaSql.endpoint": {
           "type": "string",
