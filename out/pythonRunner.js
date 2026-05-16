@@ -10,13 +10,50 @@ class PythonRunner {
         this.extensionPath = extensionPath;
         this.buffer = '';
         this.venvPath = path.join(this.extensionPath, 'python', '.venv');
-        // Determine the executable path based on platform
         if (process.platform === 'win32') {
             this.pythonExec = path.join(this.venvPath, 'Scripts', 'python.exe');
         }
         else {
             this.pythonExec = path.join(this.venvPath, 'bin', 'python');
         }
+    }
+    /**
+     * Convert raw python response into clean markdown
+     */
+    formatResponse(data) {
+        // If already string → return as-is
+        if (typeof data === 'string') {
+            return {
+                raw: data,
+                markdown: data
+            };
+        }
+        const message = data?.message || data?.msg || '';
+        const sql = data?.sql || data?.query || '';
+        const error = data?.error;
+        let markdown = '';
+        // Title / Message section
+        if (message) {
+            markdown += `### 🧠 Response\n\n${message}\n\n`;
+        }
+        // SQL section (formatted properly)
+        if (sql) {
+            markdown += `### 🗄️ SQL Query\n\n`;
+            markdown += `\`\`\`sql\n${sql.trim()}\n\`\`\`\n\n`;
+        }
+        // Error section (if any)
+        if (error) {
+            markdown += `### ❌ Error\n\n\`\`\`\n${error}\n\`\`\`\n`;
+        }
+        // Fallback if nothing structured
+        if (!markdown) {
+            markdown = '```json\n' + JSON.stringify(data, null, 2) + '\n```';
+        }
+        return {
+            ...data,
+            markdown,
+            raw: data
+        };
     }
     setupEnvironment(outputChannel) {
         return new Promise((resolve, reject) => {
@@ -27,12 +64,10 @@ class PythonRunner {
             }
             outputChannel.appendLine("Creating virtual environment...");
             try {
-                // Determine system python
                 const sysPython = process.platform === 'win32' ? 'python' : 'python3';
                 (0, child_process_1.execSync)(`${sysPython} -m venv ${this.venvPath}`, { cwd: this.extensionPath });
                 outputChannel.appendLine("Installing requirements...");
                 const reqPath = path.join(this.extensionPath, 'python', 'requirements.txt');
-                // Use pip from the newly created venv
                 const pipExec = process.platform === 'win32'
                     ? path.join(this.venvPath, 'Scripts', 'pip.exe')
                     : path.join(this.venvPath, 'bin', 'pip');
@@ -57,21 +92,23 @@ class PythonRunner {
             vscode.window.showErrorMessage("Failed to setup Python environment. Check output log.");
             return;
         }
-        const scriptPath = path.join(this.extensionPath, 'python', 'agent.py');
+        const scriptPath = path.join(this.extensionPath, 'python', 'main.py');
         this.process = (0, child_process_1.spawn)(this.pythonExec, [scriptPath]);
         this.process.stdout?.on('data', (data) => {
             this.buffer += data.toString();
             let lines = this.buffer.split('\n');
             this.buffer = lines.pop() || '';
             for (let line of lines) {
-                if (line.trim()) {
-                    try {
-                        const parsed = JSON.parse(line);
-                        this.onMessageCallback?.(parsed);
-                    }
-                    catch (e) {
-                        outputChannel.appendLine(`Error parsing python output: ${line}`);
-                    }
+                if (!line.trim())
+                    continue;
+                try {
+                    const parsed = JSON.parse(line);
+                    // ✅ FORMAT OUTPUT NICELY HERE
+                    const formatted = this.formatResponse(parsed);
+                    this.onMessageCallback?.(formatted);
+                }
+                catch (e) {
+                    outputChannel.appendLine(`Error parsing python output: ${line} ${e}`);
                 }
             }
         });

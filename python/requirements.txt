@@ -1,6 +1,3 @@
-vanna==0.7.4
-chromadb
-ollama
 pandas
 sqlalchemy
 psycopg2-binary
@@ -9,3 +6,9 @@ pyodbc
 anthropic
 openai
 google-generativeai
+llama-index-core
+llama-index-llms-openai
+llama-index-llms-azure-openai
+llama-index-llms-anthropic
+llama-index-llms-google_genai
+llama-index-embeddings-opena
