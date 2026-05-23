@@ -1,14 +1,33 @@
 {
-  "name": "vanna-sql-agent-extension",
+  "name": "opensql",
   "displayName": "openQL Agent",
-  "description": "NL2SQL Agent powered by Vanna",
+  "description": "Natural-language SQL agent for VS Code — chat with your database using OpenAI, Anthropic, Azure OpenAI, or Google Gemini.",
   "version": "1.0.0",
+  "publisher": "h5sh",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Machine Learning"
   ],
+  "keywords": [
+    "sql",
+    "nl2sql",
+    "database",
+    "ai",
+    "llm",
+    "openai",
+    "anthropic",
+    "gemini",
+    "postgres",
+    "mysql"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/H5SH/nlsql-vscode"
+  },
   "main": "./out/extension.js",
   "activationEvents": [],
   "contributes": {
