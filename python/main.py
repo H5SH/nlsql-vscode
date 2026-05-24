@@ -33,7 +33,7 @@ def main():
             except Exception as e:
                 # Top level error (initialization or generation failed)
                 # Return only the main error message to keep UI clean
-                respond("error", error=str(e))
+                respond("error", {"error": str(e)})
 
 if __name__ == "__main__":
     main()

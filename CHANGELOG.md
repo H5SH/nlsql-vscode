@@ -26,3 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### FIX
 - python >= 3.12 require for environment
+
+## [1.0.3] - 2026-05-24
+
+### FIX
+- Error Message
