@@ -16,3 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shows the exact SQL query generated and executed alongside every answer.
 - Bundled Python backend with automatic virtual-environment bootstrap and dependency install on first launch.
 - `openQL: Open Chat` command to focus the panel from the Command Palette.
+
+## [1.0.1] - 2026-05-24
+
+### Added
+- logo
+
+## [1.0.2] - 2026-05-24
+
+### FIX
+- python >= 3.12 require for environment

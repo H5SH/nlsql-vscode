@@ -17,6 +17,57 @@ class PythonRunner {
             this.pythonExec = path.join(this.venvPath, 'bin', 'python');
         }
     }
+    findCompatiblePython(outputChannel) {
+        const candidates = process.platform === 'win32'
+            ? ['python', 'py']
+            : ['python3', 'python'];
+        for (const cmd of candidates) {
+            try {
+                let versionOutput = '';
+                if (cmd === 'py') {
+                    versionOutput = (0, child_process_1.execSync)(`${cmd} -3 --version`).toString();
+                }
+                else {
+                    versionOutput = (0, child_process_1.execSync)(`${cmd} --version`).toString();
+                }
+                outputChannel.appendLine(`Found interpreter: ${versionOutput.trim()}`);
+                const match = versionOutput.match(/Python (\d+)\.(\d+)\.(\d+)/);
+                if (!match)
+                    continue;
+                const major = parseInt(match[1]);
+                const minor = parseInt(match[2]);
+                const isSupported = major > 3 ||
+                    (major === 3 && minor >= 12);
+                if (isSupported) {
+                    if (cmd === 'py') {
+                        return 'py -3';
+                    }
+                    return cmd;
+                }
+            }
+            catch (err) {
+                continue;
+            }
+        }
+        throw new Error('Python 3.12 or higher is required but was not found.');
+    }
+    isVenvValid() {
+        if (!fs.existsSync(this.pythonExec)) {
+            return false;
+        }
+        try {
+            const output = (0, child_process_1.execSync)(`"${this.pythonExec}" --version`).toString();
+            const match = output.match(/Python (\d+)\.(\d+)\.(\d+)/);
+            if (!match)
+                return false;
+            const major = parseInt(match[1]);
+            const minor = parseInt(match[2]);
+            return major === 3 && minor >= 12;
+        }
+        catch {
+            return false;
+        }
+    }
     /**
      * Convert raw python response into clean markdown
      */
@@ -57,15 +108,19 @@ class PythonRunner {
     }
     setupEnvironment(outputChannel) {
         return new Promise((resolve, reject) => {
-            if (fs.existsSync(this.pythonExec)) {
-                outputChannel.appendLine("Virtual environment already exists.");
-                resolve();
-                return;
+            if (fs.existsSync(this.venvPath)) {
+                fs.rmSync(this.venvPath, {
+                    recursive: true,
+                    force: true
+                });
             }
             outputChannel.appendLine("Creating virtual environment...");
             try {
-                const sysPython = process.platform === 'win32' ? 'python' : 'python3';
-                (0, child_process_1.execSync)(`${sysPython} -m venv ${this.venvPath}`, { cwd: this.extensionPath });
+                const pythonCmd = this.findCompatiblePython(outputChannel);
+                outputChannel.appendLine(`Using Python interpreter: ${pythonCmd}`);
+                (0, child_process_1.execSync)(`${pythonCmd} -m venv "${this.venvPath}"`, {
+                    cwd: this.extensionPath
+                });
                 outputChannel.appendLine("Installing requirements...");
                 const reqPath = path.join(this.extensionPath, 'python', 'requirements.txt');
                 const pipExec = process.platform === 'win32'
@@ -76,7 +131,8 @@ class PythonRunner {
                 resolve();
             }
             catch (error) {
-                outputChannel.appendLine(`Failed to setup Python environment: ${error.message}`);
+                vscode.window.showErrorMessage(error.message || 'Failed to setup Python environment.');
+                outputChannel.appendLine(error.stack || error.message);
                 reject(error);
             }
         });
